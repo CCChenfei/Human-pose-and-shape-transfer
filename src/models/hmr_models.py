@@ -14,6 +14,7 @@ Helper:
 
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
+from resnet18 import ResNet
 
 from tensorflow.contrib.layers.python.layers.initializers import variance_scaling_initializer
 
@@ -76,6 +77,36 @@ def Color_Encoder_resnet(x, is_training=True, weight_decay=0.001, reuse=False):
                 scope='color_resnet_v2_50')
             net = tf.squeeze(net, axis=[1, 2])
     variables = tf.contrib.framework.get_variables('color_resnet_v2_50')
+    return net, variables
+
+def Color_Encoder_resnet18(x, is_training=True, weight_decay=0.001, reuse=False):
+    """
+    Resnet 18
+    Assumes input is [batch, height_in, width_in, channels]!!
+    Input:
+    - x: N x H x W x 3
+    - weight_decay: float
+    - reuse: bool->True if test
+
+    Outputs:
+    - cam: N x 3
+    - Pose vector: N x 72
+    - Shape vector: N x 10
+    - variables: tf variables
+    """
+    resnet18 = ResNet()
+    with tf.name_scope("Color_Encoder_resnet", [x]):
+        with tf.variable_scope("color_resnet18",reuse=reuse):
+            features, variables = resnet18.build_tower(
+                x,
+                # num_classes=None,
+                # is_training=is_training,
+                reuse=reuse)
+                # scope='color_resnet_v2_50')
+            net = features[-1]
+            net = tf.reshape(net,[net.shape[0],-1])
+            # net = tf.squeeze(net, axis=[1, 2])
+    # variables = tf.contrib.framework.get_variables('color_resnet_v2_50')
     return net, variables
 
 

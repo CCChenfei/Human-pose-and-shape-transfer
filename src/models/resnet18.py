@@ -21,6 +21,7 @@ class ResNet(object):
 
 
     def build_tower(self, images,reuse):
+        # with tf.variable_scope(name,reuse=reuse):
         print('Building model')
         # filters = [128, 128, 256, 512, 1024]
         filters = [64, 64, 128, 256, 512]
@@ -72,7 +73,7 @@ class ResNet(object):
 
         variables.extend(var1)
         variables.extend(var2)
-        #feature_maps.append(x)
+        feature_maps.append(x)
 
         # Logit
         with tf.variable_scope('logits',reuse=reuse) as scope:

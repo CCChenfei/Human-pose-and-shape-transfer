@@ -12,7 +12,7 @@ import deepdish as dd
 from tf_smpl.batch_smpl import SMPL
 from tf_smpl.projection import batch_orth_proj_idrot
 
-from models.hmr_models import Color_Encoder_resnet, Encoder_resnet, Encoder_fc3_dropout
+from models.hmr_models import Color_Encoder_resnet, Color_Encoder_resnet18,Encoder_resnet, Encoder_fc3_dropout
 from models.generator_models import InfoGenerator
 from models.discriminator_models import NLayerDiscriminator, StarDiscriminator
 from models.resnet18 import ResNet
@@ -215,7 +215,7 @@ class Fusion4DTrainer(object):
             return result,self.hmr_Var
 
     def build_color_encoder(self,images,uvs,is_training):
-        color_feat, color_Var = Color_Encoder_resnet(
+        color_feat, color_Var = Color_Encoder_resnet18(
             tf.concat([images, uvs], axis=-1),
             weight_decay=self.config.e_wd,
             reuse=tf.AUTO_REUSE,
@@ -263,8 +263,9 @@ class Fusion4DTrainer(object):
 
     def build_single_generator(self,color_code,uv,bg,is_training):
         mask, fore, var_generator = InfoGenerator(uv, color_code,is_training=is_training,name='generator',reuse=tf.AUTO_REUSE)
-        img = (1. - mask) * tf.image.resize_bilinear(bg,[256, 256]) + mask * fore
-        final_img = tf.image.resize_bilinear(img, [self.config.img_size, self.config.img_size])
+        img = (1. - mask) * tf.image.resize_bilinear(bg,[512, 512]) + mask * fore
+        # final_img = tf.image.resize_bilinear(img, [self.config.img_size, self.config.img_size])
+        final_img = img #increase the resolution of the image 512*512*3
         output={
             'mask':mask,
             'fore':fore,
@@ -357,15 +358,22 @@ class Fusion4DTrainer(object):
 
         self.fake_score,_=self.build_discriminator(self.output_gen)
         self.fake_score_assign,_=self.build_discriminator(self.output_gen_assign)
-        self.real_score,self.dimg_Var = self.build_discriminator(self.input_feature['real'])
+        # self.real_score,self.dimg_Var = self.build_discriminator(self.input_feature['real'])
+        self.real_score,self.dimg_Var = self.build_discriminator(tf.image.resize_bilinear(self.input_feature['real'],[512,512]))
 
         #gather generator loss
         # gather reconstruction loss
+        # fake_feature_list, self.resnet18_var = self.feature_loss.build_tower(
+        #     tf.image.resize_bilinear(self.move_mean_and_var(self.output_gen), [128, 128])
+        #     , reuse=False)
+        # real_feature_list, _ = self.feature_loss.build_tower(
+        #     tf.image.resize_bilinear(self.move_mean_and_var(self.input_feature['image']), [128, 128])
+        #     , reuse=True)
         fake_feature_list, self.resnet18_var = self.feature_loss.build_tower(
-            tf.image.resize_bilinear(self.move_mean_and_var(self.output_gen), [128, 128])
+            tf.image.resize_bilinear(self.move_mean_and_var(self.output_gen), [512, 512])
             , reuse=False)
         real_feature_list, _ = self.feature_loss.build_tower(
-            tf.image.resize_bilinear(self.move_mean_and_var(self.input_feature['image']), [128, 128])
+            tf.image.resize_bilinear(self.move_mean_and_var(self.input_feature['image']), [512, 512])
             , reuse=True)
         if self.config.use_swap_uv:
             for i in range(len(real_feature_list)):
@@ -374,11 +382,15 @@ class Fusion4DTrainer(object):
                              range(len(fake_feature_list))]
         self.feature_loss = tf.reduce_mean(tf.stack(feature_loss_list, axis=0))
         if self.config.use_swap_uv:
+            # self.loss_recons = tf.reduce_mean((self.output_gen -
+            #                                tf.concat([self.input_feature['image']]*2,axis=0)) ** 2,name='ggg')
             self.loss_recons = tf.reduce_mean((self.output_gen -
-                                           tf.concat([self.input_feature['image']]*2,axis=0)) ** 2,name='ggg')
+                                               tf.concat([tf.image.resize_bilinear(self.input_feature['image'],[512,512])] * 2, axis=0)) ** 2, name='ggg')
         else:
+            # self.loss_recons = tf.reduce_mean((self.output_gen -
+            #                                    self.input_feature['image']) ** 2)
             self.loss_recons = tf.reduce_mean((self.output_gen -
-                                               self.input_feature['image']) ** 2)
+                                               tf.image.resize_bilinear(self.input_feature['image'],[512,512])) ** 2)
         self.e_loss = self.config.recons_weight * self.loss_recons \
                       + self.config.e_feature_loss_weight * self.feature_loss
 
@@ -405,10 +417,10 @@ class Fusion4DTrainer(object):
 
         if self.config.use_swap_uv:
             self.gp = gradient_penalty(tf.concat([
-                self.input_feature['real']]*2,axis=0),self.output_gen_assign)
+                tf.image.resize_bilinear(self.input_feature['real'],[512,512])]*2,axis=0),self.output_gen_assign)
 
         else:
-            self.gp = gradient_penalty(self.input_feature['real'],
+            self.gp = gradient_penalty(tf.image.resize_bilinear(self.input_feature['real'],[512,512]),
                                        self.output_gen_assign)
 
         self.d_img_loss_real = tf.reduce_mean(
@@ -889,6 +901,9 @@ class Fusion4DTrainer(object):
         mask = (tf.concat([tf.gather(self.output['mask'], show)] * 3, -1)) * 255.
         fore = (tf.gather(self.output['fore'], show) + 1.) * 255. / 2.
         final = (tf.gather(self.output['img'], show) + 1.) * 255. / 2.
+        ####show low resolution image####
+        final= tf.image.resize_bilinear(final,[self.config.img_size,self.config.img_size])
+
         dis = tf.abs(final - input_image)
         total_image = tf.concat([
             tf.concat(

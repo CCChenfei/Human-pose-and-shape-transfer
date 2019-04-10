@@ -10,7 +10,7 @@ import tqdm
 class DataLoader():
     def __init__(self, config,randomize=False):
         self.img_dir = config.data_dir
-        self.useCamBatches = config.use_cam_batch
+        self.useCamBatches = config.useCamBatches
         # self.input_types = input_types
         # self.label_types = label_types
         self.randomrize = randomize

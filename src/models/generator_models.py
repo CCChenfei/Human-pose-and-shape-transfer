@@ -78,6 +78,8 @@ def InfoGenerator(x,
         out=slim.batch_norm(out,is_training=is_training)
         out = slim.conv2d_transpose(out, 64 / 4, 3, 2)
         out = slim.batch_norm(out, is_training=is_training)
+        out = slim.conv2d_transpose(out,64/8,3,2)
+        out = slim.batch_norm(out,is_training = is_training)
 
         mask_out=slim.conv2d(out,1,3,activation_fn=slim.nn.sigmoid)
         fore_out=slim.conv2d(out,3,3,activation_fn=slim.nn.tanh)
