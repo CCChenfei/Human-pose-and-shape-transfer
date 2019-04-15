@@ -107,17 +107,19 @@ flags.DEFINE_float('e_j2d_weight', 1, 'weight on discriminator')
 flags.DEFINE_float('e_j3d_weight', 1, 'weight on discriminator')
 flags.DEFINE_float('recons_weight', 10., 'Encoder learning rate')
 
-
+flags.DEFINE_boolean('use_test_transfer_image', False, 'finetune on test images')
 
 
 def get_config():
     config = flags.FLAGS
     config(sys.argv)
     #########################train config################################
-    setattr(config,'pretrained_model_path','/home/chenf/PycharmProjects/multi-view-4d-fusion-master/models/model.ckpt-667589')
+    # setattr(config,'pretrained_model_path','/home/chenf/PycharmProjects/multi-view-4d-fusion-master/models/model.ckpt-667589')
+    setattr(config, 'pretrained_model_path',
+            '/home/chenf/PycharmProjects/multi-view-4d-fusion-master/src/logs/HMR_Apr10_1520/model.ckpt-257000')
     setattr(config, 'feature_loss_pretrained_model_path','/home/chenf/PycharmProjects/multi-view-4d-fusion-master/models/model.ckpt')
     # setattr(config, 'color_pretrained_model_path','/home/chenf/PycharmProjects/multi-view-4d-fusion-master/models/pretrained/convert')
-    setattr(config, 'data_dir','/home/chenf/Documents/pose_estimation/data/H36M-Multiview/train')
+
     # setattr(config, 'model_dir', '/home/chenf/PycharmProjects/multi-view-4d-fusion-master/models/')
     setattr(config, 'e_lr', 1e-4)
     setattr(config, 'd_img_lr', 1e-4)
@@ -130,11 +132,14 @@ def get_config():
     setattr(config, 'log_dir', 'logs')
     setattr(config, 'discriminator_type', 'stargan')
     # setattr(config, 'img_size', 448)
-    setattr(config, 'use_swap_uv', True)
+    # setattr(config, 'use_swap_uv', True)
     setattr(config, 'use_2d_joints', False)
     setattr(config, 'use_3d_joints', False)
-    # setattr(config, 'load_path', '/home/chenf/PycharmProjects/multi-view-4d-fusion-master/src/logs/HMR_Jan16_2159')
+    # setattr(config, 'load_path', '/home/chenf/PycharmProjects/multi-view-4d-fusion-master/src/logs/HMR_Apr10_1520')
 
+    # setattr(config, 'data_dir', '/home/chenf/Documents/pose_estimation/data/H36M-Multiview/train')
+    setattr(config, 'data_dir', '/home/chenf/PycharmProjects/data/ExperimentData/lyq')
+    setattr(config, 'use_test_transfer_image',True)
     ######################test config####################################
     # setattr(config, 'data_dir', '/home/chenf/Documents/pose_estimation/data/H36M-Multiview/test')
     # setattr(config, 'batch_size', 1)
