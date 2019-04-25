@@ -222,11 +222,12 @@ class DataLoader():
     def loadImage(self,key,cam,type,img_res,normalize):
         if self.use_test_transfer_image:
             if type == "bg":
-                img_name = self.img_dir + '/bg.jpg'
+                img_name = self.img_dir + '/bg.png'
             else:
-                img_name = self.img_dir+'/'+str(key[0])+'.jpg'
+                img_name = self.img_dir+'/'+str(key[0])+'.png'
         else:
-            img_name = self.img_dir+'/s'+str(key[0])+'/seq'+str(key[1])+'/cam'+str(cam)+'/'+type+str(key[2])+'.jpg'
+            img_name = self.img_dir+'/s'+str(key[0])+'/seq'+str(key[1])+'/cam'+str(cam)+'/'+type+str(key[2])+'.png'
+
         img = cv2.imread(img_name)
         img = cv2.resize(img,(img_res,img_res))
         img = img/255.
