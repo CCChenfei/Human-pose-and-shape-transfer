@@ -17,7 +17,7 @@ flags.DEFINE_float('shape_scale',0.1,'shape_scale')
 flags.DEFINE_boolean('use_linear_shape',False,'use linear shape')
 flags.DEFINE_boolean('use_linear_pose',False,'use linear pose')
 flags.DEFINE_boolean('use_linear_cam',False,'use linear cam')
-flags.DEFINE_integer('rand_batch_num',1,'rand_batch_num')
+flags.DEFINE_integer('rand_batch_num',70,'rand_batch_num')
 flags.DEFINE_string('output_path',None,'output image path')
 
 

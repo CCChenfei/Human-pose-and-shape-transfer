@@ -60,12 +60,12 @@ flags.DEFINE_string(
 
 # Training settings:
 # TODO! If you want to train, change this to your 'tf_datasets' or specify it with the flag.
-DATA_DIR = '/home/chenf/Documents/pose_estimation/data/H36M-Multiview/train'
+DATA_DIR = '/home/gzp/Personal/dataset/H36M_RES512/train'
 
 flags.DEFINE_string('data_dir', DATA_DIR, 'Where to save training models')
 flags.DEFINE_string('log_dir', 'logs', 'Where to save training models')
 flags.DEFINE_string('model_dir', None, 'Where model will be saved -- filled automatically')
-flags.DEFINE_integer('log_img_step', 100, 'How often to visualize img during training')
+flags.DEFINE_integer('log_img_step', 400, 'How often to visualize img during training')
 flags.DEFINE_integer('epoch', 100, '# of epochs to train')
 
 
@@ -116,35 +116,38 @@ def get_config():
     #########################train config################################
     # setattr(config,'pretrained_model_path','/home/chenf/PycharmProjects/multi-view-4d-fusion-master/models/model.ckpt-667589')
     setattr(config, 'pretrained_model_path',
-            '/home/chenf/PycharmProjects/multi-view-4d-fusion-master/src/logs/HMR_Apr10_1520/model.ckpt-257000')
+            '/home/chenf/PycharmProjects/multi-view-4d-fusion-master/pretrain/model.ckpt-31000')
     setattr(config, 'feature_loss_pretrained_model_path','/home/chenf/PycharmProjects/multi-view-4d-fusion-master/models/model.ckpt')
-    # setattr(config, 'color_pretrained_model_path','/home/chenf/PycharmProjects/multi-view-4d-fusion-master/models/pretrained/convert')
+    # setattr(config, 'color_pretrained_model_path','/home/gzp/research/2018/experiments/Human-pose-and-shape-transfer/logs/lyq/model.ckpt-19800')
 
     # setattr(config, 'model_dir', '/home/chenf/PycharmProjects/multi-view-4d-fusion-master/models/')
     setattr(config, 'e_lr', 1e-4)
     setattr(config, 'd_img_lr', 1e-4)
     setattr(config, 'color_length', 256)
-    setattr(config, 'recons_weight', 50.)
-    setattr(config, 'e_feature_loss_weight', 100.)
-    setattr(config, 'log_img_step', 200)
-    setattr(config, 'batch_size',10)
+    setattr(config, 'recons_weight', 80.)
+    setattr(config, 'e_feature_loss_weight', 150.)
+    setattr(config, 'log_img_step',100)
+    setattr(config,'img_size',224)
+    setattr(config, 'batch_size',20)
     setattr(config, 'epoch', 75)
-    setattr(config, 'log_dir', 'logs')
+    setattr(config, 'log_dir', 'lql')
     setattr(config, 'discriminator_type', 'stargan')
     # setattr(config, 'img_size', 448)
-    # setattr(config, 'use_swap_uv', True)
+    setattr(config, 'use_swap_uv', True)
     setattr(config, 'use_2d_joints', False)
     setattr(config, 'use_3d_joints', False)
+    setattr(config,'img_prior',True)
     # setattr(config, 'load_path', '/home/chenf/PycharmProjects/multi-view-4d-fusion-master/src/logs/HMR_Apr10_1520')
-
+    # setattr(config, 'load_path', '/home/gzp/research/2018/experiments/Human-pose-and-shape-transfer/logs/HMR_Apr18_1222')
     # setattr(config, 'data_dir', '/home/chenf/Documents/pose_estimation/data/H36M-Multiview/train')
-    setattr(config, 'data_dir', '/home/chenf/PycharmProjects/data/ExperimentData/lyq')
+    setattr(config, 'data_dir', '/home/chenf/PycharmProjects/data/ExperimentData2/lql')
     setattr(config, 'use_test_transfer_image',True)
     ######################test config####################################
     # setattr(config, 'data_dir', '/home/chenf/Documents/pose_estimation/data/H36M-Multiview/test')
-    # setattr(config, 'batch_size', 1)
-    # setattr(config, 'load_path', '/home/chenf/PycharmProjects/multi-view-4d-fusion-master/src/logs/HMR_Jan16_2159')
-    # setattr(config,'output_path','./test')
+    # setattr(config, 'batch_size', 6)
+    # setattr(config, 'load_path', '/home/gzp/research/2018/experiments/Human-pose-and-shape-transfer/logs/lyq')
+    # setattr(config,'output_path','./lyq_pose_test')
+    # setattr(config,'use_linear_pose',True)
 
     return config
 
